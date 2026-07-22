@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function JobDetails() {
   const { id } = useParams();
@@ -13,8 +13,8 @@ function JobDetails() {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/jobs/${id}`
+        const res = await api.get(
+          `/jobs/${id}`
         );
         setJob(res.data);
       } catch (error) {
@@ -39,8 +39,8 @@ function JobDetails() {
       const formData = new FormData();
       formData.append("resume", resume);
 
-      const uploadRes = await axios.post(
-        "http://localhost:5000/api/upload/resume",
+      const uploadRes = await api.post(
+        "/upload/resume",
         formData,
         {
           headers: {
@@ -50,8 +50,8 @@ function JobDetails() {
         }
       );
 
-      await axios.post(
-        `http://localhost:5000/api/applications/${id}/apply`,
+      await api.post(
+        `/applications/${id}/apply`,
         { resumeUrl: uploadRes.data.filePath },
         {
           headers: {

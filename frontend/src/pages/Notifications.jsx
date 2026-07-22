@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function Notifications() {
   const [notifications, setNotifications] =
@@ -18,8 +18,8 @@ function Notifications() {
             );
 
           const res =
-            await axios.get(
-              "http://localhost:5000/api/notifications",
+            await api.get(
+              "/notifications",
               {
                 headers: {
                   Authorization:
@@ -48,8 +48,8 @@ function Notifications() {
           "token"
         );
 
-      await axios.put(
-        `http://localhost:5000/api/notifications/${id}/read`,
+      await api.put(
+        `/notifications/${id}/read`,
         {},
         {
           headers: {

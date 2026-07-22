@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { useSearchParams } from "react-router-dom";
 
 function MyApplications() {
@@ -28,8 +28,8 @@ localStorage.getItem(
 "token"
 );
     const res =
-        await axios.get(
-          "http://localhost:5000/api/applications/my-applications",
+        await api.get(
+          "/applications/my-applications",
           {
             headers: {
               Authorization:

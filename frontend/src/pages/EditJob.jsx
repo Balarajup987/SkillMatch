@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { useParams ,useNavigate} from "react-router-dom";
 
 function EditJob() {
@@ -24,8 +24,8 @@ function EditJob() {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/jobs/${id}`
+        const res = await api.get(
+          `jobs/${id}`
         );
 
         const job = res.data;
@@ -51,8 +51,8 @@ function EditJob() {
       const token =
         localStorage.getItem("token");
 
-      await axios.put(
-        `http://localhost:5000/api/jobs/${id}`,
+      await api.put(
+        `/jobs/${id}`,
         {
           title,
           company,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { Link } from "react-router-dom";
 
 function Jobs() {
@@ -15,8 +15,8 @@ function Jobs() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/jobs"
+        const res = await api.get(
+          "/jobs"
         );
 
         setJobs(res.data.jobs);

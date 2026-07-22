@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { useParams } from "react-router-dom";
 
 function Applicants() {
@@ -15,8 +15,8 @@ function Applicants() {
         const token =
           localStorage.getItem("token");
 
-        const res = await axios.get(
-          `http://localhost:5000/api/applications/${id}/applicants`,
+        const res = await api.get(
+          `/applications/${id}/applicants`,
           {
             headers: {
               Authorization:
@@ -44,8 +44,8 @@ function Applicants() {
       const token =
         localStorage.getItem("token");
 
-      await axios.put(
-        `http://localhost:5000/api/applications/${applicationId}/status`,
+      await api.put(
+        `import.meta.env.VITE_API_URL/applications/${applicationId}/status`,
         { status },
         {
           headers: {

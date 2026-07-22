@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function CreateJob() {
   const [title, setTitle] = useState("");
@@ -15,8 +15,8 @@ function CreateJob() {
       const token =
         localStorage.getItem("token");
 
-      await axios.post(
-        "http://localhost:5000/api/jobs",
+      await api.post(
+        "/jobs",
         {
           title,
           company,

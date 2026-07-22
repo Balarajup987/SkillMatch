@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function AdminDashboard() {
 
@@ -11,8 +11,8 @@ function AdminDashboard() {
   const fetchDashboard = async () => {
     try {
 
-      const statsRes = await axios.get(
-        "http://localhost:5000/api/admin/dashboard",
+      const statsRes = await api.get(
+        "/admin/dashboard",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -22,8 +22,8 @@ function AdminDashboard() {
 
       setStats(statsRes.data);
 
-      const usersRes = await axios.get(
-        "http://localhost:5000/api/admin/users",
+      const usersRes = await api.get(
+        "/admin/users",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -50,8 +50,8 @@ const restrictUser = async (id) => {
 
   try {
 
-    await axios.put(
-      `http://localhost:5000/api/admin/users/${id}/restrict`,
+    await api.put(
+      `/admin/users/${id}/restrict`,
       {},
       {
         headers: {
@@ -71,8 +71,8 @@ const restrictUser = async (id) => {
 
   try {
 
-    await axios.put(
-      `http://localhost:5000/api/admin/users/${id}/unrestrict`,
+    await api.put(
+      `/admin/users/${id}/unrestrict`,
       {},
       {
         headers: {

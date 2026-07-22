@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import api from "../api";
 
 function Signup() {
 const [name, setName] = useState("");
@@ -53,15 +53,12 @@ if (!emailRegex.test(email)) {
 }
 
 try {
-  await axios.post(
-    "http://localhost:5000/api/auth/signup",
-    {
+ await api.post("/auth/signup",{
       name,
       email,
       password,
       role
-    }
-  );
+    });
 
   setIsError(false);
   setMessage(

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function Profile() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -22,16 +22,16 @@ function Profile() {
         const formData = new FormData();
         formData.append("resume", resumeFile);
 
-        const uploadRes = await axios.post(
-          "http://localhost:5000/api/upload/resume",
+        const uploadRes = await api.post(
+          "/upload/resume",
           formData
         );
 
         uploadedFilePath = uploadRes.data.filePath;
       }
 
-      const res = await axios.put(
-        "http://localhost:5000/api/auth/profile",
+      const res = await api.put(
+        "/auth/profile",
         {
           education,
           experience,

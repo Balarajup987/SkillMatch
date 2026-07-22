@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { Link } from "react-router-dom";
 
 function MyJobs() {
@@ -13,8 +13,8 @@ function MyJobs() {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await axios.get(
-          "http://localhost:5000/api/jobs/my-jobs",
+        const res = await api.get(
+          "/jobs/my-jobs",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -38,8 +38,8 @@ function MyJobs() {
     const token =
       localStorage.getItem("token");
 
-    await axios.delete(
-      `http://localhost:5000/api/jobs/${id}`,
+    await api.delete(
+      `/jobs/${id}`,
       {
         headers: {
           Authorization:

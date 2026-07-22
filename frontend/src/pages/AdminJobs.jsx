@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 function AdminJobs() {
 
@@ -11,8 +11,8 @@ function AdminJobs() {
 
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(
-        "http://localhost:5000/api/jobs",
+      const res = await api.get(
+        "/jobs",
         {
           headers: {
             Authorization: `Bearer ${token}`

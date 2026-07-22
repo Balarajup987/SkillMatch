@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 
 function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -12,8 +12,8 @@ function Dashboard() {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await axios.get(
-          "http://localhost:5000/api/dashboard/stats",
+        const res = await api.get(
+          "/dashboard/stats",
           {
             headers: {
               Authorization: `Bearer ${token}`,

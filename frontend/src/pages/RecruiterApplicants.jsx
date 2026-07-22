@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { useSearchParams } from "react-router-dom";
 
 function RecruiterApplicants() {
@@ -23,8 +23,8 @@ function RecruiterApplicants() {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await axios.get(
-          "http://localhost:5000/api/applications/recruiter/all",
+        const res = await api.get(
+          "/applications/recruiter/all",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -47,8 +47,8 @@ function RecruiterApplicants() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.put(
-        `http://localhost:5000/api/applications/${id}/status`,
+      await api.put(
+        `/applications/${id}/status`,
         { status },
         {
           headers: {
@@ -84,8 +84,8 @@ function RecruiterApplicants() {
   setShowModal(false);
 
   try {
-    await axios.put(
-      `http://localhost:5000/api/applications/${selectedApp._id}/schedule`,
+    await api.put(
+      `/applications/${selectedApp._id}/schedule`,
       {
         interviewDate: `${interviewData.date} ${interviewData.time}`,
         meetingLink: interviewData.meetingLink

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../api";
 import { Link } from "react-router-dom";
 import {Eye,EyeOff} from "lucide-react";
 
@@ -17,8 +17,8 @@ e.preventDefault();
 
 
 try {
-  const res = await axios.post(
-    "http://localhost:5000/api/auth/login",
+  const res = await api.post(
+    "/auth/login",
     { email, password }
   );
 

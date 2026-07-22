@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 
 function Navbar() {
 const user = JSON.parse(
@@ -28,8 +28,8 @@ useEffect(() => {
         return;
       }
 
-      const res = await axios.get(
-        "http://localhost:5000/api/notifications",
+      const res = await api.get(
+        "/notifications",
         {
           headers: {
             Authorization: `Bearer ${token}`
