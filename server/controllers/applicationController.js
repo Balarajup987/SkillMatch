@@ -1,10 +1,46 @@
+
 import Application from "../models/Application.js";
 import Job from "../models/Job.js";
 import { extractResumeText } from "./atsController.js";
-import { analyzeResumeWithAI }
-from "../utils/aiService.js";
+import { analyzeResumeWithAI } from "../utils/aiService.js";
 import Notification from "../models/Notification.js";
 import sendEmail from "../utils/sendEmail.js";
+
+// Convert AI response into a JavaScript object
+const parseAIResult = (atsResult) => {
+  if (
+    typeof atsResult === "object" &&
+    atsResult !== null &&
+    !Array.isArray(atsResult)
+  ) {
+    return atsResult;
+  }
+
+  if (typeof atsResult !== "string") {
+    throw new Error("Invalid AI response format");
+  }
+
+  const cleanResult = atsResult
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  return JSON.parse(cleanResult);
+};
+
+// Validate AI response fields
+const validateAIResult = (result) => {
+  if (
+    typeof result.score !== "number" ||
+    !Array.isArray(result.strengths) ||
+    !Array.isArray(result.weaknesses) ||
+    !Array.isArray(result.suggestions)
+  ) {
+    throw new Error("AI returned an invalid ATS result");
+  }
+
+  return result;
+};
 
 export const applyJob = async (req, res) => {
   try {
@@ -45,49 +81,42 @@ export const applyJob = async (req, res) => {
         message: "Resume required"
       });
     }
-    const resumeText =
-      await extractResumeText(
-        resumeUrl
-      );
-    
-    const atsResult =
-      await analyzeResumeWithAI(
-        resumeText
-      );
-    
+
+    // Extract resume text
+    const resumeText = await extractResumeText(resumeUrl);
+
+    // Analyze resume using Groq AI
+    const atsResult = await analyzeResumeWithAI(resumeText);
+
     console.log("AI response:", atsResult);
-    
-    const cleanResult =
-      atsResult
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
 
-    const parsedResult =
-      JSON.parse(cleanResult);
+    // Parse and validate AI response
+    const parsedResult = validateAIResult(
+      parseAIResult(atsResult)
+    );
 
+    console.log("Parsed AI result:", parsedResult);
+
+    // Create application
     const application = await Application.create({
       candidate: req.user._id,
       job: jobId,
       resumeUrl,
-    
-      atsScore:
-        parsedResult.score,
-      strengths:
-        parsedResult.strengths,
-      weaknesses:
-        parsedResult.weaknesses,
-      suggestions:
-        parsedResult.suggestions
+      atsScore: parsedResult.score,
+      strengths: parsedResult.strengths,
+      weaknesses: parsedResult.weaknesses,
+      suggestions: parsedResult.suggestions
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Applied Successfully",
       application
     });
 
   } catch (error) {
-    res.status(500).json({
+    console.error("Apply Job Error:", error);
+
+    return res.status(500).json({
       message: error.message
     });
   }
@@ -115,14 +144,13 @@ export const getApplicants = async (req, res) => {
     const applications = await Application.find({
       job: jobId
     }).populate("candidate", "name email role");
-    
-    res.status(200).json(
-      applications
-    );
-  }
-   catch (error) {
+
+    return res.status(200).json(applications);
+
+  } catch (error) {
     console.log(error);
-    res.status(500).json({
+
+    return res.status(500).json({
       message: error.message
     });
   }
@@ -166,21 +194,22 @@ export const updateApplicationStatus = async (req, res) => {
     application.status = status;
 
     await application.save();
+
     await Notification.create({
-    user: application.candidate,
-    message:
-    status === "shortlisted"
-      ? `You were shortlisted for ${application.job.title}`
-      : `Your application was rejected for ${application.job.title}`
+      user: application.candidate._id,
+      message:
+        status === "shortlisted"
+          ? `You were shortlisted for ${application.job.title}`
+          : `Your application was rejected for ${application.job.title}`
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Status Updated Successfully",
       application
     });
 
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message
     });
   }
@@ -195,17 +224,16 @@ export const getMyApplications = async (req, res) => {
       "title company location salary"
     );
 
-    res.status(200).json(applications);
+    return res.status(200).json(applications);
 
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message
     });
   }
 };
 
-export const getAllRecruiterApplicants =
-async (req, res) => {
+export const getAllRecruiterApplicants = async (req, res) => {
   try {
     const recruiterJobs = await Job.find({
       createdBy: req.user._id
@@ -215,23 +243,16 @@ async (req, res) => {
       (job) => job._id
     );
 
-    const applications =
-      await Application.find({
-        job: { $in: jobIds }
-      })
-        .populate(
-          "candidate",
-          "name email"
-        )
-        .populate(
-          "job",
-          "title company"
-        );
+    const applications = await Application.find({
+      job: { $in: jobIds }
+    })
+      .populate("candidate", "name email")
+      .populate("job", "title company");
 
-    res.status(200).json(applications);
+    return res.status(200).json(applications);
 
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message
     });
   }
@@ -242,7 +263,8 @@ export const scheduleInterview = async (req, res) => {
     const { interviewDate, meetingLink } = req.body;
 
     const application = await Application.findById(req.params.id)
-      .populate("job").populate("candidate");
+      .populate("job")
+      .populate("candidate");
 
     if (!application) {
       return res.status(404).json({
@@ -265,10 +287,11 @@ export const scheduleInterview = async (req, res) => {
 
     await application.save();
 
-  try {
-  console.log("Sending Interview Email...");
+    // Send interview email
+    try {
+      console.log("Sending Interview Email...");
 
-  const emailText = `
+      const emailText = `
 Hello ${application.candidate.name},
 
 Congratulations!
@@ -292,29 +315,30 @@ Best of Luck!
 SkillMatch Team
 `;
 
-  await sendEmail(
-    application.candidate.email,
-    "Interview Scheduled",
-    emailText
-  );
+      await sendEmail(
+        application.candidate.email,
+        "Interview Scheduled",
+        emailText
+      );
 
-  console.log("Email Sent Successfully");
+      console.log("Email Sent Successfully");
 
-} catch (err) {
-  console.log("Email Error:", err.message);
-}
+    } catch (err) {
+      console.log("Email Error:", err.message);
+    }
 
     await Notification.create({
-    user: application.candidate._id,
-    message: `Interview scheduled for ${application.job.title}`
+      user: application.candidate._id,
+      message: `Interview scheduled for ${application.job.title}`
     });
 
-    res.json({
+    return res.status(200).json({
       message: "Interview Scheduled",
       application
     });
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message
     });
   }
